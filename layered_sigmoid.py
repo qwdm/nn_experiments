@@ -20,11 +20,6 @@ class SigmoidLayer:
         self.w -= np.dot(np.array([k]).T, [inputs])
         self.b -= k
 
-#        print('OOOO')
-#        print(inputs,s)
-#        print(k)
-#        print(self.w)
-#        print(self.b)
 
 
 class NeuralNetwork:
@@ -52,11 +47,11 @@ class NeuralNetwork:
 #            if not verbose:
 #                continue 
 
-            print('Epoch: {}'.format(epoch))
-
-            for i in range(len(X)):
-                ans = self.apply(X[i])
-                print(X[i], Y[i], ans)
+#            print('Epoch: {}'.format(epoch))
+#
+#            for i in range(len(X)):
+#                ans = self.apply(X[i])
+#                print(X[i], Y[i], ans)
 
 #            print('Weights')
 #            for layer in self.layers:
@@ -75,22 +70,11 @@ class NeuralNetwork:
         for layer in self.layers:
             outputs.append(layer.apply(outputs[-1]))
 
-        # calculate errors(local gradients) for all layers
-        errors = [(outputs[-1] - y) * outputs[-1] * (1 - outputs[-1])]
-        for layer, output in reversed(list(zip(self.layers[1:], outputs[1:-1]))):  # backpropagation, 
-                                                                                 # very first layer dont produce error
-#            print(output.shape, errors[-1].shape)
-#            print(output, errors[-1])
-            errors.append(np.dot(layer.w.T, (errors[-1] * output * (1 - output))))
-        errors.reverse()
-
 #        # calculate errors(local gradients) for all layers
-#        errors = [outputs[-1] - y]
-#        errors = [(outputs[-1] - y) * outputs[-1] * (1 - outputs[-1])]
-#        for layer in reversed(self.layers[1:]):  # backpropagation, 
-#                                                                                 # very first layer dont produce error
-#            errors.append(np.dot(layer.w.T, errors[-1]))
-#        errors.reverse()
+        errors = [outputs[-1] - y]
+        for layer in reversed(self.layers[1:]):  # backpropagation, 
+            errors.append(np.dot(layer.w.T, errors[-1]))
+        errors.reverse()
 
 #        print('errors', errors)
 
@@ -107,10 +91,8 @@ def main():
     random.seed = 17
     np.random.seed(17)
     
-##    and_gate()
-#    xor_gate()   # not working (suddenly =) )
     
-    net = NeuralNetwork(n_inputs=2, n_neurons_list=[3, 1])
+    net = NeuralNetwork(n_inputs=2, n_neurons_list=[5, 1])
 
     X = [
         [0, 0],
@@ -135,7 +117,11 @@ def main():
 #    ]
 #    ).reshape((4,1))
 
-    net.fit(X, Y, alpha=1, epochs=300)
+    net.fit(X, Y, alpha=1, epochs=100)
+
+    for i in range(len(X)):
+        ans = net.apply(X[i])
+        print(X[i], Y[i], ans)
         
 
 if __name__ == '__main__':
