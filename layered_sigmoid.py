@@ -136,7 +136,7 @@ def main():
     for layer in net.layers:
         print(layer.w)
 
-    net.fit(X, Y, alpha=2, epochs=100)
+    net.fit(X, Y, alpha=1, epochs=100)
 
     print('Weights after learning')
     for layer in net.layers:
