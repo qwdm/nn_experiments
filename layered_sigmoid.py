@@ -8,15 +8,14 @@ import copy
 class SigmoidLayer:
 
     def __init__(self, n_inputs, n_neurons):
-        self.w = np.random.random((n_neurons, n_inputs)) - 0.5
-        self.b = np.random.random(n_neurons) - .5
+        self.w = 7 * (np.random.random((n_neurons, n_inputs)) - 0.5)
+        self.b = 7 * (np.random.random(n_neurons) - .5)
 
     def apply(self, inputs):
         return sigmoid(np.dot(self.w, inputs) + self.b)
     
-    def _adjust_weights(self, inputs, errors, alpha):
-        s = self.apply(inputs)
-        k = alpha * s * (1 - s) * errors
+    def _adjust_weights(self, inputs, local_gradient_vector, alpha):
+        k = alpha * local_gradient_vector
         self.w -= np.dot(np.array([k]).T, [inputs])
         self.b -= k
 
@@ -70,17 +69,15 @@ class NeuralNetwork:
         for layer in self.layers:
             outputs.append(layer.apply(outputs[-1]))
 
-#        # calculate errors(local gradients) for all layers
-        errors = [outputs[-1] - y]
-        for layer in reversed(self.layers[1:]):  # backpropagation, 
-            errors.append(np.dot(layer.w.T, errors[-1]))
-        errors.reverse()
-
-#        print('errors', errors)
+        # calculate local gradients for all layers, backpropagation
+        local_gradients = [(outputs[-1] - y) * outputs[-1] * (1 - outputs[-1])]
+        for layer, output in reversed(list(zip(self.layers[1:], outputs[1:-1]))):
+            local_gradients.append(np.dot(layer.w.T, local_gradients[-1]) * output * (1 - output))
+        local_gradients.reverse()
 
         # adjust weights for all layers
-        for layer, input_vector, error_vector in zip(self.layers, outputs, errors):
-            layer._adjust_weights(input_vector, error_vector, alpha)
+        for layer, input_vector, local_gradient_vector in zip(self.layers, outputs, local_gradients):
+            layer._adjust_weights(input_vector, local_gradient_vector, alpha)
 
 
 def sigmoid(z):
@@ -88,8 +85,8 @@ def sigmoid(z):
 
 
 def main():
-    random.seed = 17
-    np.random.seed(17)
+    random.seed = 7 
+    np.random.seed(7)
     
     
     net = NeuralNetwork(n_inputs=2, n_neurons_list=[5, 1])
@@ -117,12 +114,19 @@ def main():
 #    ]
 #    ).reshape((4,1))
 
+    print('Weights init')
+    for layer in net.layers:
+        print(layer.w)
+
     net.fit(X, Y, alpha=1, epochs=100)
 
+    print('Weights after learning')
+    for layer in net.layers:
+        print(layer.w)
+        
     for i in range(len(X)):
         ans = net.apply(X[i])
         print(X[i], Y[i], ans)
-        
 
 if __name__ == '__main__':
     main()
