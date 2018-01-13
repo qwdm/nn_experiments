@@ -8,8 +8,8 @@ import copy
 class SigmoidLayer:
 
     def __init__(self, n_inputs, n_neurons):
-        self.w = 7 * (np.random.random((n_neurons, n_inputs)) - 0.5)
-        self.b = 7 * (np.random.random(n_neurons) - .5)
+        self.w = 1 * (np.random.random((n_neurons, n_inputs)) - 0.5)
+        self.b = 1 * (np.random.random(n_neurons) - .5)
 
     def apply(self, inputs):
         return sigmoid(np.dot(self.w, inputs) + self.b)
